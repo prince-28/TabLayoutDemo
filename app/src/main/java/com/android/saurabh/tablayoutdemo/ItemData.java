@@ -7,9 +7,9 @@ package com.android.saurabh.tablayoutdemo;
 public class ItemData {
 
     private String title;
-    private int imageUrl;
+    private String imageUrl;
 
-    public ItemData(String title,int imageUrl){
+    public ItemData(String title,String imageUrl){
 
         this.title = title;
         this.imageUrl = imageUrl;
@@ -25,11 +25,11 @@ public class ItemData {
         this.title = title;
     }
 
-    public int getImageUrl() {
+    public String getImageUrl() {
         return imageUrl;
     }
 
-    public void setImageUrl(int imageUrl) {
+    public void setImageUrl(String imageUrl) {
         this.imageUrl = imageUrl;
     }
 }
