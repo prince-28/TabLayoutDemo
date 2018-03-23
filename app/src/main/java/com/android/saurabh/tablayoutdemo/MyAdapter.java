@@ -10,12 +10,13 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+import java.util.List;
 
 public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> {
     private ItemData[] itemsData;
 
-    public MyAdapter(ItemData[] itemsData) {
-        this.itemsData = itemsData;
+    public MyAdapter(List<ItemData> itemsData) {
+        this.itemsData = itemsData.toArray(new ItemData[0]);
     }
 
     // Create new views (invoked by the layout manager)
@@ -40,7 +41,16 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> {
         // - replace the contents of the view with that itemsData
 
         viewHolder.txtViewTitle.setText(itemsData[position].getTitle());
-        viewHolder.imgViewIcon.setImageResource(itemsData[position].getImageUrl());
+
+        try{
+            String i = String.valueOf(Integer.parseInt(itemsData[position].getImageUrl()));
+            viewHolder.imgViewIcon.setImageResource(Integer.parseInt(i));
+
+        }catch(NumberFormatException ex){ // handle your exception
+
+        }
+
+
 
 
     }
