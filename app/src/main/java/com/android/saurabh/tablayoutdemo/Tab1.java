@@ -85,8 +85,6 @@ public class Tab1 extends Fragment {
                         //hiding the progressbar after completion
                         progressBar.setVisibility(View.INVISIBLE);
 
-
-
                         try {
                             //getting the whole json object from the response
                             JSONObject obj = new JSONObject(response);
@@ -101,7 +99,7 @@ public class Tab1 extends Fragment {
                                 JSONObject heroObject = heroArray.getJSONObject(i);
 
                                 //creating a hero object and giving them the values from json object
-                                ItemData hero = new ItemData(heroObject.getString("name"), heroObject.getString("imageurl"));
+                                ItemData hero = new ItemData(heroObject.getString("name"), Integer.parseInt(heroObject.getString( "imageurl")));
 
                                 //adding the hero to herolist
                                 heroList.add(hero);
