@@ -25,7 +25,6 @@
         android:layout_height="wrap_content"
         android:layout_toRightOf="@+id/item_icon"
         android:layout_alignBaseline="@+id/item_icon"
-        android:textColor="@android:color/darker_gray"
         android:layout_marginLeft="8dp"
         android:layout_marginRight="8dp"
         android:text="Title TextView"

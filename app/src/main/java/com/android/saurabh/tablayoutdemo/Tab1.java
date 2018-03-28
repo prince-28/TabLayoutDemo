@@ -4,9 +4,9 @@ package com.android.saurabh.tablayoutdemo;
  * Created by Saurabh on 3/23/2018.
  */
 
+import android.app.ProgressDialog;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -33,13 +33,12 @@ import java.util.List;
 //Our class extending fragment
 public class Tab1 extends Fragment {
 
-    RecyclerView mRecycler1;
+    RecyclerView recyclerView;
+    private RecyclerView.Adapter adapter;
+    private List<DevelopersList> developersLists;
     ProgressBar progressBar;
 
-    //the hero list where we will store all the hero objects after parsing json
-    List<ItemData> heroList;
-
-    private static  final String url = "https://simplifiedcoding.net/demos/view-flipper/heroes.php";
+    private static final String URL_DATA = "https://api.github.com/search/users?q=language:java+location:lagos";
 
     //Overriden method onCreateView
     @Override
@@ -47,96 +46,69 @@ public class Tab1 extends Fragment {
         View view = inflater.inflate(R.layout.tab1, container, false);
 
         // Replace 'android.R.id.list' with the 'id' of your RecyclerView
-        mRecycler1 = view.findViewById(R.id.tab1_recyclerview);
+        recyclerView = view.findViewById(R.id.tab1_recyclerview);
+        recyclerView.setHasFixedSize(true);
+        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
 
         //getting the progressbar
         progressBar = view.findViewById (R.id.progressBar);
 
-        heroList = new ArrayList<>();
+        developersLists = new ArrayList<>();
 
         Log.d("debugMode", "The application stopped after this");
 
-//        // this is data fro recycler view
-//        ItemData itemsData[] = { new ItemData("Help",R.mipmap.ic_launcher),
-//                new ItemData("Delete",R.mipmap.ic_launcher_round),
-//                new ItemData("Cloud",R.mipmap.ic_launcher_round),
-//                new ItemData("Favorite",R.mipmap.ic_launcher_round),
-//                new ItemData("Like",R.mipmap.ic_launcher_round),
-//                new ItemData("Rating",R.mipmap.ic_launcher_round)};
+        loadUrlData();
 
-        callApi();
-
-        //Returning the layout file after inflating
-        //Change R.layout.tab1 in you classes
         return view;
     }
 
-    private void callApi(){
+    private void loadUrlData() {
 
+        final ProgressDialog progressDialog = new ProgressDialog(getContext());
+        progressDialog.setMessage("Loading...");
+        progressDialog.show();
 
-        //making the progressbar visible
-        progressBar.setVisibility(View.VISIBLE);
+        StringRequest stringRequest = new StringRequest(Request.Method.GET,
+                URL_DATA, new Response.Listener<String>() {
+            @Override
+            public void onResponse(String response) {
 
-        //creating a string request to send request to the url
-        StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
-                new Response.Listener<String>() {
-                    @Override
-                    public void onResponse(String response) {
-                        //hiding the progressbar after completion
-                        progressBar.setVisibility(View.INVISIBLE);
+                progressDialog.dismiss();
 
-                        try {
-                            //getting the whole json object from the response
-                            JSONObject obj = new JSONObject(response);
+                try {
 
-                            //we have the array named hero inside the object
-                            //so here we are getting that json array
-                            JSONArray heroArray = obj.getJSONArray("heroes");
+                    JSONObject jsonObject = new JSONObject(response);
 
-                            //now looping through all the elements of the json array
-                            for (int i = 0; i < heroArray.length(); i++) {
-                                //getting the json object of the particular index inside the array
-                                JSONObject heroObject = heroArray.getJSONObject(i);
+                    JSONArray array = jsonObject.getJSONArray("items");
 
-                                //creating a hero object and giving them the values from json object
-                                ItemData hero = new ItemData(heroObject.getString("name"), Integer.parseInt(heroObject.getString( "imageurl")));
+                    for (int i = 0; i < array.length(); i++){
 
-                                //adding the hero to herolist
-                                heroList.add(hero);
-                            }
+                        JSONObject jo = array.getJSONObject(i);
 
-                            //creating custom adapter object
-//                            RecyclerViewAdapter adapter = new RecyclerViewAdapter(heroList, getContext());
+                        DevelopersList developers = new DevelopersList(jo.getString("login"), jo.getString("html_url"),
+                                jo.getString("avatar_url"));
+                        developersLists.add(developers);
 
-                            //adding the adapter to listview
-//                            listView.setAdapter(adapter);
-
-                            // 2. set layoutManger
-                            mRecycler1.setLayoutManager(new LinearLayoutManager(getContext()));
-                            // 3. create an adapter
-                            MyAdapter mAdapter = new MyAdapter(heroList);
-                            // 4. set adapter
-                            mRecycler1.setAdapter(mAdapter);
-                            // 5. set item animator to DefaultAnimator
-                            mRecycler1.setItemAnimator(new DefaultItemAnimator());
-
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
                     }
-                },
-                new Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-                        //displaying the error in toast if occurrs
-                        Toast.makeText(getContext(), error.getMessage(), Toast.LENGTH_SHORT).show();
-                    }
-                });
 
-        //creating a request queue
+                    adapter = new DevelopersAdapter(developersLists, getContext());
+                    recyclerView.setAdapter(adapter);
+
+                } catch (JSONException e) {
+
+                    e.printStackTrace();
+                }
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+
+                Toast.makeText(getContext(), "Error" + error.toString(), Toast.LENGTH_SHORT).show();
+
+            }
+        });
+
         RequestQueue requestQueue = Volley.newRequestQueue(getContext());
-
-        //adding the string request to request queue
         requestQueue.add(stringRequest);
     }
 }
